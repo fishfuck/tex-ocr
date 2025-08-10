@@ -21,7 +21,7 @@
 
 ### 1. 克隆项目
 ```bash
-git clone <repository-url>
+git clone https://github.com/fishfuck/tex-ocr.git
 cd tex-ocr
 ```
 
@@ -176,7 +176,7 @@ tex-ocr/
 
 ## 🙏 致谢
 
-- [SimpleTeX](https://server.simpletex.cn/) - 提供OCR API服务
+- [SimpleTeX](https://simpletex.cn) - 提供OCR API服务
 - [mss](https://github.com/BoboTiG/python-mss) - 跨平台截图库
 - [pynput](https://github.com/moses-palmer/pynput) - 跨平台输入监听库
 
