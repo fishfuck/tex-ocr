@@ -98,6 +98,7 @@ class ScreenCapture:
         except Exception as e:
             pass
         
+        self.is_capturing = False
         self.select_position = None
 
         self.label = tk.Label(root, text="点击按钮开始截图")
@@ -211,6 +212,15 @@ class ScreenCapture:
         print("未能注册全局热键。请使用界面按钮进行截图。")
 
     def start_capture(self, hotkey=None):
+        # 防止截图过程中重复触发
+        if getattr(self, 'is_capturing', False):
+            print("正在进行截图，忽略重复触发的热键/点击")
+            return
+        self.is_capturing = True
+        try:
+            self.capture_button.config(state='disabled')
+        except Exception:
+            pass
         # 最小化主窗口
         self.root.withdraw()
         self.root.lift()
@@ -255,6 +265,11 @@ class ScreenCapture:
             self.top.destroy()
         self.root.deiconify()
         self.label.config(text="截图已取消")
+        self.is_capturing = False
+        try:
+            self.capture_button.config(state='normal')
+        except Exception:
+            pass
 
     def update_screen_dimensions(self):
         """更新屏幕尺寸信息，支持多显示器"""
@@ -332,6 +347,11 @@ class ScreenCapture:
             print("截图失败！")
             self.root.deiconify()
             self.label.config(text="截图失败，请重试")
+            self.is_capturing = False
+            try:
+                self.capture_button.config(state='normal')
+            except Exception:
+                pass
             return
         
         # 保存截图
@@ -377,6 +397,11 @@ class ScreenCapture:
         # 重新显示主窗口
         self.root.deiconify()
         self.label.config(text="截图成功，已复制到剪切板")
+        self.is_capturing = False
+        try:
+            self.capture_button.config(state='normal')
+        except Exception:
+            pass
     
     def display_monitor_info(self):
         """显示检测到的显示器信息"""
