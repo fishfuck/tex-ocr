@@ -241,9 +241,20 @@ class ScreenCapture:
         # 移除窗口边框
         self.top.overrideredirect(True)
         
+        # 确保键盘焦点与全局事件捕获
+        try:
+            self.top.focus_force()
+            self.top.grab_set()
+        except Exception:
+            pass
+        
         # 创建覆盖所有显示器的Canvas
         self.canvas = tk.Canvas(self.top, bg='gray', width=self.total_width, height=self.total_height)
         self.canvas.pack(fill='both', expand=True)
+        try:
+            self.canvas.focus_set()
+        except Exception:
+            pass
 
         self.start_x = tk.IntVar()
         self.start_y = tk.IntVar()
@@ -255,9 +266,14 @@ class ScreenCapture:
         
         print(f"创建截图窗口: 位置({self.min_x}, {self.min_y}), 尺寸 {self.total_width}x{self.total_height}")
         
-        # 添加右键取消功能
+        # 添加右键取消功能 - 绑定到窗口和Canvas
         self.top.bind('<Button-3>', lambda e: self.cancel_capture())
+        self.canvas.bind('<Button-3>', lambda e: self.cancel_capture())
         self.top.bind('<Escape>', lambda e: self.cancel_capture())
+        
+        # 添加提示信息
+        self.top.bind('<Enter>', lambda e: self.show_cancel_hint())
+        self.top.bind('<Leave>', lambda e: self.hide_cancel_hint())
     
     def cancel_capture(self):
         """取消截图"""
@@ -270,6 +286,21 @@ class ScreenCapture:
             self.capture_button.config(state='normal')
         except Exception:
             pass
+    
+    def show_cancel_hint(self):
+        """显示取消提示信息"""
+        if hasattr(self, 'top') and self.top.winfo_exists():
+            # 在截图窗口上显示提示信息
+            if not hasattr(self, 'hint_label'):
+                self.hint_label = tk.Label(self.top, text="右键或按ESC取消截图", 
+                                         bg='yellow', fg='black', font=('Arial', 12, 'bold'))
+                self.hint_label.place(relx=0.5, rely=0.1, anchor='center')
+    
+    def hide_cancel_hint(self):
+        """隐藏取消提示信息"""
+        if hasattr(self, 'hint_label') and self.hint_label.winfo_exists():
+            self.hint_label.destroy()
+            delattr(self, 'hint_label')
 
     def update_screen_dimensions(self):
         """更新屏幕尺寸信息，支持多显示器"""
